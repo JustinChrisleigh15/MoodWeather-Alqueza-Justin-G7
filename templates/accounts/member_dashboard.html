@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}My Dashboard | Mood Weather{% endblock %}
+{% block content %}
+<h1>Hello, {{ user.first_name|default:user.username }}!</h1>
+<p class="muted">Your Mood Weather space. Daily entries, history and forecasts will appear here in the next phases.</p>
+<div class="grid">
+  <article class="card"><h2>&#127780;&#65039; Today's Mood Weather</h2><p class="muted">Coming in Project Development 2.</p></article>
+  <article class="card"><h2>&#128214; Mood History</h2><p class="muted">Coming soon.</p></article>
+  <article class="card"><h2>&#128302; My Forecast</h2><p class="muted">Coming soon.</p></article>
+  <article class="card"><h2>&#128100; My Profile</h2><p><a href="{% url 'accounts:profile' %}">View or edit profile</a></p></article>
+</div>
+{% endblock %}

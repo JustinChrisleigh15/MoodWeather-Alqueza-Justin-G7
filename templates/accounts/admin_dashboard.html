@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard | Mood Weather{% endblock %}
+{% block content %}
+<h1>Admin Dashboard</h1>
+<div class="grid">
+  <article class="card stat"><span>{{ total_users }}</span>Total users</article>
+  <article class="card stat"><span>{{ total_members }}</span>Members</article>
+  <article class="card stat"><span>{{ total_admins }}</span>Admins</article>
+</div>
+<section class="card">
+  <h2>Recently registered users</h2>
+  <table>
+    <thead><tr><th>Username</th><th>Email</th><th>Role</th><th>Joined</th></tr></thead>
+    <tbody>
+    {% for u in recent_users %}
+      <tr><td>{{ u.username }}</td><td>{{ u.email }}</td><td>{{ u.get_role_display }}</td><td>{{ u.date_joined|date:"M d, Y" }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <p><a href="{% url 'admin:index' %}">Open user management (Django admin)</a></p>
+</section>
+{% endblock %}
