@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}{% if mode == 'edit' %}Edit entry{% else %}New entry{% endif %} | Mood Weather{% endblock %}
+{% block content %}
+<section class="card narrow">
+  <h1>{% if mode == 'edit' %}Edit mood entry{% else %}How is your day?{% endif %}</h1>
+  <p class="muted">Rate each item from 1 to 5.</p>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% include 'accounts/_form_fields.html' %}
+    <button type="submit" class="btn">Save entry</button>
+    <a href="{% url 'moods:entry_list' %}">Cancel</a>
+  </form>
+</section>
+{% endblock %}

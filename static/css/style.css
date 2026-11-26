@@ -28,3 +28,8 @@ table { width:100%; border-collapse:collapse; } th, td { text-align:left; paddin
 dl { display:grid; grid-template-columns:140px 1fr; gap:.4rem 1rem; } dt { font-weight:600; color:var(--muted); } dd { margin:0; }
 .avatar { width:96px; height:96px; border-radius:50%; object-fit:cover; margin-bottom:1rem; }
 .footer { text-align:center; color:var(--muted); font-size:.8rem; padding:1rem; }
+
+/* --- Mood entries --- */
+.row { display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; }
+select, textarea, input[type=date] { padding:.6rem; border:1px solid #cbd5e1; border-radius:8px; font-size:1rem; width:100%; font-family:inherit; }
+.btn.danger { background:#dc2626; } .btn.danger:hover { background:#991b1b; }

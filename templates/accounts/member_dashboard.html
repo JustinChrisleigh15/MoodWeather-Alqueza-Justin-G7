@@ -2,11 +2,30 @@
 {% block title %}My Dashboard | Mood Weather{% endblock %}
 {% block content %}
 <h1>Hello, {{ user.first_name|default:user.username }}!</h1>
-<p class="muted">Your Mood Weather space. Daily entries, history and forecasts will appear here in the next phases.</p>
 <div class="grid">
-  <article class="card"><h2>&#127780;&#65039; Today's Mood Weather</h2><p class="muted">Coming in Project Development 2.</p></article>
-  <article class="card"><h2>&#128214; Mood History</h2><p class="muted">Coming soon.</p></article>
+  <article class="card">
+    <h2>&#127780;&#65039; Today</h2>
+    {% if today_entry %}
+      <p>Mood {{ today_entry.mood }}/5 · Stress {{ today_entry.stress }}/5 · Energy {{ today_entry.energy }}/5 · Sleep {{ today_entry.sleep_quality }}/5</p>
+      <a href="{% url 'moods:entry_detail' today_entry.pk %}">View entry</a>
+    {% else %}
+      <p class="muted">You have not recorded today yet.</p>
+      <a class="btn" href="{% url 'moods:entry_create' %}">Record today</a>
+    {% endif %}
+  </article>
+  <article class="card"><h2>&#128214; My Entries</h2><p>{{ entry_count }} recorded</p><a href="{% url 'moods:entry_list' %}">View all entries</a></article>
   <article class="card"><h2>&#128302; My Forecast</h2><p class="muted">Coming soon.</p></article>
   <article class="card"><h2>&#128100; My Profile</h2><p><a href="{% url 'accounts:profile' %}">View or edit profile</a></p></article>
 </div>
+{% if recent_entries %}
+<section class="card">
+  <h2>Recent entries</h2>
+  <table>
+    <thead><tr><th>Date</th><th>Mood</th><th>Stress</th><th>Energy</th><th>Sleep</th></tr></thead>
+    <tbody>{% for e in recent_entries %}
+      <tr><td><a href="{% url 'moods:entry_detail' e.pk %}">{{ e.entry_date|date:"M d, Y" }}</a></td><td>{{ e.mood }}</td><td>{{ e.stress }}</td><td>{{ e.energy }}</td><td>{{ e.sleep_quality }}</td></tr>
+    {% endfor %}</tbody>
+  </table>
+</section>
+{% endif %}
 {% endblock %}

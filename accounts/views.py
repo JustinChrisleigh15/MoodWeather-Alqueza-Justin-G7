@@ -3,6 +3,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.shortcuts import redirect, render
+from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from .decorators import role_required
@@ -81,7 +82,15 @@ def admin_dashboard(request):
 
 @role_required(User.Role.MEMBER)
 def member_dashboard(request):
-    return render(request, "accounts/member_dashboard.html")
+    from moods.models import MoodEntry
+
+    entries = MoodEntry.objects.filter(user=request.user)
+    context = {
+        "today_entry": entries.filter(entry_date=timezone.localdate()).first(),
+        "recent_entries": entries[:5],
+        "entry_count": entries.count(),
+    }
+    return render(request, "accounts/member_dashboard.html", context)
 
 
 @login_required
