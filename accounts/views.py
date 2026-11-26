@@ -6,6 +6,9 @@ from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
+from moods.classifier import WEATHER_CHOICES
+from moods.models import MoodEntry
+
 from .decorators import role_required
 from .forms import LoginForm, ProfileForm, RegistrationForm
 from .models import User
@@ -76,14 +79,17 @@ def admin_dashboard(request):
         "total_members": User.objects.filter(role=User.Role.MEMBER).count(),
         "total_admins": User.objects.filter(role=User.Role.ADMIN).count(),
         "recent_users": User.objects.order_by("-date_joined")[:10],
+        "total_entries": MoodEntry.objects.count(),
+        "recent_entries": MoodEntry.objects.select_related("user")[:5],
+        "weather_counts": [
+            (label, MoodEntry.objects.filter(weather=value).count()) for value, label in WEATHER_CHOICES
+        ],
     }
     return render(request, "accounts/admin_dashboard.html", context)
 
 
 @role_required(User.Role.MEMBER)
 def member_dashboard(request):
-    from moods.models import MoodEntry
-
     entries = MoodEntry.objects.filter(user=request.user)
     context = {
         "today_entry": entries.filter(entry_date=timezone.localdate()).first(),
