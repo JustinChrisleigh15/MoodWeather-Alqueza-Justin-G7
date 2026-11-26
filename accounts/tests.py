@@ -96,7 +96,7 @@ class RoleAccessTests(TestCase):
     def test_each_role_sees_own_dashboard(self):
         make_user("m"); make_user("a", role=User.Role.ADMIN)
         self.client.login(username="m", password="StrongPass!234")
-        self.assertContains(self.client.get(reverse("accounts:member_dashboard")), "Mood Weather space")
+        self.assertContains(self.client.get(reverse("accounts:member_dashboard")), "My Entries")
         self.client.logout(); self.client.login(username="a", password="StrongPass!234")
         self.assertContains(self.client.get(reverse("accounts:admin_dashboard")), "Total users")
 
