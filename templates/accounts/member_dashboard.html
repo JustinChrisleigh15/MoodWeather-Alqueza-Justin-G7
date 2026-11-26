@@ -4,10 +4,10 @@
 <h1>Hello, {{ user.first_name|default:user.username }}!</h1>
 <div class="grid">
   <article class="card">
-    <h2>&#127780;&#65039; Today</h2>
+    <h2>&#127780;&#65039; Today's Mood Weather</h2>
     {% if today_entry %}
-      <p>Mood {{ today_entry.mood }}/5 · Stress {{ today_entry.stress }}/5 · Energy {{ today_entry.energy }}/5 · Sleep {{ today_entry.sleep_quality }}/5</p>
-      <a href="{% url 'moods:entry_detail' today_entry.pk %}">View entry</a>
+      {% include 'moods/_weather_card.html' with entry=today_entry %}
+      <a href="{% url 'moods:entry_detail' today_entry.pk %}">Open card</a>
     {% else %}
       <p class="muted">You have not recorded today yet.</p>
       <a class="btn" href="{% url 'moods:entry_create' %}">Record today</a>
@@ -21,9 +21,9 @@
 <section class="card">
   <h2>Recent entries</h2>
   <table>
-    <thead><tr><th>Date</th><th>Mood</th><th>Stress</th><th>Energy</th><th>Sleep</th></tr></thead>
+    <thead><tr><th>Date</th><th>Weather</th><th>Mood</th><th>Stress</th><th>Energy</th><th>Sleep</th></tr></thead>
     <tbody>{% for e in recent_entries %}
-      <tr><td><a href="{% url 'moods:entry_detail' e.pk %}">{{ e.entry_date|date:"M d, Y" }}</a></td><td>{{ e.mood }}</td><td>{{ e.stress }}</td><td>{{ e.energy }}</td><td>{{ e.sleep_quality }}</td></tr>
+      <tr><td><a href="{% url 'moods:entry_detail' e.pk %}">{{ e.entry_date|date:"M d, Y" }}</a></td><td>{{ e.weather_icon }} {{ e.get_weather_display }}</td><td>{{ e.mood }}</td><td>{{ e.stress }}</td><td>{{ e.energy }}</td><td>{{ e.sleep_quality }}</td></tr>
     {% endfor %}</tbody>
   </table>
 </section>

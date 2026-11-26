@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}All entries | Mood Weather{% endblock %}
+{% block content %}
+<h1>All mood entries</h1>
+<p class="muted">Read-only overview. Only members can create, edit or delete their own entries.</p>
+<form method="get" class="card filters">
+  <input type="text" name="q" value="{{ q }}" placeholder="Search username or email">
+  <select name="weather">
+    <option value="">All weather</option>
+    {% for value, label in weather_choices %}<option value="{{ value }}" {% if weather == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select>
+  <button type="submit" class="btn">Filter</button>
+</form>
+<section class="card">
+  {% if page.object_list %}
+  <table>
+    <thead><tr><th>Member</th><th>Date</th><th>Weather</th><th>Mood</th><th>Stress</th><th>Energy</th><th>Sleep</th></tr></thead>
+    <tbody>{% for e in page.object_list %}
+      <tr><td>{{ e.user.username }}</td><td><a href="{% url 'moods:entry_detail' e.pk %}">{{ e.entry_date|date:"M d, Y" }}</a></td>
+      <td>{{ e.weather_icon }} {{ e.get_weather_display }}</td><td>{{ e.mood }}</td><td>{{ e.stress }}</td><td>{{ e.energy }}</td><td>{{ e.sleep_quality }}</td></tr>
+    {% endfor %}</tbody>
+  </table>
+  <p class="muted">
+    {% if page.has_previous %}<a href="?q={{ q }}&weather={{ weather }}&page={{ page.previous_page_number }}">&laquo; Newer</a>{% endif %}
+    Page {{ page.number }} of {{ page.paginator.num_pages }}
+    {% if page.has_next %}<a href="?q={{ q }}&weather={{ weather }}&page={{ page.next_page_number }}">Older &raquo;</a>{% endif %}
+  </p>
+  {% else %}<p class="muted">No entries found.</p>{% endif %}
+</section>
+{% endblock %}
