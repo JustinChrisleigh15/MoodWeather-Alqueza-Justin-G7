@@ -1,0 +1,12 @@
+<div class="weather-card w-{{ entry.weather }}">
+  <div class="w-icon">{{ entry.weather_icon }}</div>
+  <div class="w-title">{{ entry.get_weather_display }}</div>
+  <div class="w-date">{{ entry.entry_date|date:"l, F d, Y" }}</div>
+  <div class="w-stats">
+    <span>Mood <strong>{{ entry.mood }}</strong>/5</span>
+    <span>Stress <strong>{{ entry.stress }}</strong>/5</span>
+    <span>Energy <strong>{{ entry.energy }}</strong>/5</span>
+    <span>Sleep <strong>{{ entry.sleep_quality }}</strong>/5</span>
+  </div>
+  <p class="w-msg">{{ entry.weather_message }}</p>
+</div>

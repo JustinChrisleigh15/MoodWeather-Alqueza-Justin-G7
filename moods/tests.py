@@ -125,3 +125,79 @@ class DashboardTests(TestCase):
         r = self.client.get(reverse("accounts:member_dashboard"))
         self.assertEqual(r.context["entry_count"], 2)
         self.assertIsNotNone(r.context["today_entry"])
+
+
+from .classifier import classify, mood_score  # noqa: E402
+
+
+class ClassifierTests(TestCase):
+    def test_score_range(self):
+        self.assertEqual(mood_score(1, 5, 1, 1), 5)
+        self.assertEqual(mood_score(5, 1, 5, 5), 25)
+
+    def test_exact_thresholds(self):
+        self.assertEqual(classify(5, 2, 4, 3), "sunny")           # 21
+        self.assertEqual(classify(5, 3, 3, 3), "partly_cloudy")   # 10+3+3+3 = 19
+        self.assertEqual(classify(4, 3, 3, 3), "partly_cloudy")   # 8+3+3+3 = 17
+        self.assertEqual(classify(4, 4, 3, 3), "cloudy")          # 8+3+3+2 = 16
+        self.assertEqual(classify(3, 4, 2, 2), "rainy")           # 12
+        self.assertEqual(classify(2, 4, 2, 2), "rainy")           # 10
+        self.assertEqual(classify(2, 5, 1, 2), "stormy")          # 4+1+2+1 = 8
+
+
+class WeatherSavedTests(TestCase):
+    def test_weather_computed_on_create_and_update(self):
+        u = make_user()
+        e = make_entry(u, mood=5, stress=1, energy=5, sleep_quality=5)
+        self.assertEqual(e.weather, "sunny")
+        e.mood, e.stress, e.energy, e.sleep_quality = 1, 5, 1, 1
+        e.save(); e.refresh_from_db()
+        self.assertEqual(e.weather, "stormy")
+
+    def test_user_cannot_set_weather_via_form(self):
+        u = make_user(); self.client.login(username="mem1", password=PW)
+        self.client.post(reverse("moods:entry_create"), form_data(mood=1, stress=5, energy=1, sleep_quality=1, weather="sunny"))
+        self.assertEqual(MoodEntry.objects.get().weather, "stormy")
+
+    def test_card_shows_weather(self):
+        u = make_user(); e = make_entry(u, mood=5, stress=1, energy=5, sleep_quality=5)
+        self.client.login(username="mem1", password=PW)
+        self.assertContains(self.client.get(reverse("moods:entry_detail", args=[e.pk])), "Sunny")
+
+    def test_member_dashboard_shows_todays_card(self):
+        u = make_user(); make_entry(u, mood=1, stress=5, energy=1, sleep_quality=1)
+        self.client.login(username="mem1", password=PW)
+        self.assertContains(self.client.get(reverse("accounts:member_dashboard")), "Stormy")
+
+
+class AdminOverviewTests(TestCase):
+    def setUp(self):
+        self.m1 = make_user("alice"); self.m2 = make_user("bob")
+        make_entry(self.m1, mood=5, stress=1, energy=5, sleep_quality=5)
+        make_entry(self.m2, mood=1, stress=5, energy=1, sleep_quality=1)
+        make_user("boss", User.Role.ADMIN)
+
+    def test_admin_sees_all_entries_and_filters(self):
+        self.client.login(username="boss", password=PW)
+        r = self.client.get(reverse("moods:admin_entries"))
+        self.assertEqual(len(r.context["page"].object_list), 2)
+        self.assertEqual(len(self.client.get(reverse("moods:admin_entries"), {"q": "alice"}).context["page"].object_list), 1)
+        self.assertEqual(len(self.client.get(reverse("moods:admin_entries"), {"weather": "stormy"}).context["page"].object_list), 1)
+
+    def test_admin_can_view_card_but_not_edit(self):
+        e = MoodEntry.objects.filter(user=self.m1).first()
+        self.client.login(username="boss", password=PW)
+        self.assertEqual(self.client.get(reverse("moods:entry_detail", args=[e.pk])).status_code, 200)
+        r = self.client.post(reverse("moods:entry_update", args=[e.pk]), form_data(mood=1))
+        self.assertEqual(r.status_code, 302)
+        e.refresh_from_db(); self.assertEqual(e.mood, 5)
+
+    def test_member_cannot_open_admin_overview(self):
+        self.client.login(username="alice", password=PW)
+        self.assertRedirects(self.client.get(reverse("moods:admin_entries")), reverse("accounts:dashboard"), fetch_redirect_response=False)
+
+    def test_admin_dashboard_shows_summary(self):
+        self.client.login(username="boss", password=PW)
+        r = self.client.get(reverse("accounts:admin_dashboard"))
+        self.assertEqual(r.context["total_entries"], 2)
+        self.assertEqual(dict(r.context["weather_counts"])["Sunny"], 1)

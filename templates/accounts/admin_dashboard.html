@@ -6,7 +6,24 @@
   <article class="card stat"><span>{{ total_users }}</span>Total users</article>
   <article class="card stat"><span>{{ total_members }}</span>Members</article>
   <article class="card stat"><span>{{ total_admins }}</span>Admins</article>
+  <article class="card stat"><span>{{ total_entries }}</span>Mood entries</article>
 </div>
+<section class="card">
+  <h2>Mood weather across all members</h2>
+  <p>{% for label, count in weather_counts %}<span class="pill">{{ label }}: <strong>{{ count }}</strong></span> {% endfor %}</p>
+</section>
+<section class="card">
+  <h2>Latest mood entries</h2>
+  {% if recent_entries %}
+  <table>
+    <thead><tr><th>Member</th><th>Date</th><th>Weather</th></tr></thead>
+    <tbody>{% for e in recent_entries %}
+      <tr><td>{{ e.user.username }}</td><td><a href="{% url 'moods:entry_detail' e.pk %}">{{ e.entry_date|date:"M d, Y" }}</a></td><td>{{ e.weather_icon }} {{ e.get_weather_display }}</td></tr>
+    {% endfor %}</tbody>
+  </table>
+  {% else %}<p class="muted">No entries yet.</p>{% endif %}
+  <p><a href="{% url 'moods:admin_entries' %}">View all entries</a></p>
+</section>
 <section class="card">
   <h2>Recently registered users</h2>
   <table>
