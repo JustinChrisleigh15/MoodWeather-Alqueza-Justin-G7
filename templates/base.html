@@ -14,8 +14,11 @@
       {% if user.is_authenticated %}
         {% if user.role == 'admin' %}
           <a href="{% url 'accounts:admin_dashboard' %}">Admin Dashboard</a>
+          <a href="{% url 'moods:admin_entries' %}">All Entries</a>
         {% else %}
           <a href="{% url 'accounts:member_dashboard' %}">My Dashboard</a>
+          <a href="{% url 'moods:entry_list' %}">My Entries</a>
+          <a href="{% url 'moods:entry_create' %}">New Entry</a>
         {% endif %}
         <a href="{% url 'accounts:profile' %}">Profile</a>
         <form method="post" action="{% url 'accounts:logout' %}" class="inline">

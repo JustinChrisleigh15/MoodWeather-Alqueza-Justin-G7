@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Mood Weather Card | Mood Weather{% endblock %}
+{% block content %}
+<section class="narrow">
+  {% if user.role == 'admin' %}<p class="muted">Member: {{ entry.user.username }} (read-only)</p>{% endif %}
+  {% include 'moods/_weather_card.html' %}
+  {% if entry.note %}<div class="card"><strong>Note</strong><p>{{ entry.note }}</p></div>{% endif %}
+  {% if user.role == 'member' %}
+    <a class="btn" href="{% url 'moods:entry_update' entry.pk %}">Edit</a>
+    <a class="btn danger" href="{% url 'moods:entry_delete' entry.pk %}">Delete</a>
+    <a href="{% url 'moods:entry_list' %}">Back to entries</a>
+  {% else %}
+    <a href="{% url 'moods:admin_entries' %}">Back to all entries</a>
+  {% endif %}
+</section>
+{% endblock %}
